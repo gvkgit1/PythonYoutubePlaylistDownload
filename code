@@ -1,0 +1,21 @@
+import re
+from pytube import Playlist
+playlist = Playlist('https://www.youtube.com/watch?v=qXdJpiBiZrs&list=PLmzpgcvcqGjNbY0IzpWH2EixsO93rLUBz')   
+DOWNLOAD_DIR = "C:/Users/o3gvk/Videos/py/"+playlist.title+"/"
+playlist._video_regex = re.compile(r"\"url\":\"(/watch\?v=[\w-]*)")    
+print(len(playlist.video_urls))    
+#print(dir(playlist))
+'''
+for url in playlist.video_urls:
+    print(url)
+'''
+for video in playlist.videos:
+    #print('downloading : {} with url : {}'.format(video.title, video.watch_url))
+    print('downloading : {}'.format(video.title))
+    video.streams.\
+        filter(type='video', progressive=True, file_extension='mp4').\
+        order_by('resolution').\
+        desc().\
+        first().\
+        download(DOWNLOAD_DIR)
+print("successfully completed")
