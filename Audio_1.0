@@ -1,0 +1,51 @@
+from pytube import Playlist
+from pytube import YouTube
+import os
+import re
+import subprocess
+
+
+
+def progress(stream, chunk, bytes_remaining):
+    global s
+    size=stream.filesize
+    n=int((size - bytes_remaining) / size * 100)
+    s1=str(n).zfill(2)
+    tensDigit=s1[0]
+    
+    if n==100:
+        print('100%')
+    elif tensDigit not in s:
+        print(tensDigit+'0%',end=" ")
+        s=s+tensDigit
+
+playlist = Playlist('https://www.youtube.com/playlist?list=PLBdYAELGnWVCQHaqDg_9t-OURSBCvHZps')   
+DOWNLOAD_DIR = "C:/Users/o3gvk/Videos/MyMusic1/"+playlist.title+"/"
+print(len(playlist.video_urls))
+
+index=1
+for video in playlist.videos:
+    print('\ndownloading {} : {}'.format(index,video.title))
+    s=''
+
+    try:
+        video1 = YouTube(video.watch_url, on_progress_callback=progress)
+        v=video1.streams.filter(only_audio=True)
+        audio = v.first().download(DOWNLOAD_DIR)
+        new_file = audio[:-3] + '.mp3'
+
+        #subprocess.run(["ffmpeg", "-y", "-i", audio, new_file])
+
+        #ml=re.findall('abr="(.+)kbps"',str(v))
+        #print(re.findall(r'abr=\"(.+)kbps\S',str(v)))
+        
+        os.rename(audio, new_file)
+
+    except Exception as e:
+        print(str(e))
+
+
+    
+    index+=1
+    
+print("\nsuccessfully completed")
