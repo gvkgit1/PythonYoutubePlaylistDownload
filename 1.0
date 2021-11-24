@@ -1,0 +1,85 @@
+import re
+from pytube import Playlist
+from pytube import YouTube
+
+
+def progress(stream, chunk, bytes_remaining):
+    global s
+    size=stream.filesize
+    n=int((size - bytes_remaining) / size * 100)
+    s1=str(n).zfill(2)
+    tensDigit=s1[0]
+    
+    if n==100:
+        print('100%')
+    elif tensDigit not in s:
+        print(tensDigit+'0%',end=" ")
+        s=s+tensDigit
+
+
+        
+'''
+
+def progress(stream, chunk, bytes_remaining):
+    global previousprogress
+    total_size = stream.filesize
+    bytes_downloaded = total_size - bytes_remaining 
+
+    liveprogress = (int)(bytes_downloaded / total_size * 100)
+    if liveprogress > previousprogress:
+        previousprogress = liveprogress
+        print(str(liveprogress)+'%',end=' ')
+'''
+
+
+
+
+playlist = Playlist('https://www.youtube.com/playlist?list=PLBdYAELGnWVBx9mzEfiZlnFSCXsL0yEeA')   
+DOWNLOAD_DIR = "C:/Users/o3gvk/Videos/MyMusic/"+playlist.title+"/"
+#playlist._video_regex = re.compile(r"\"url\":\"(/watch\?v=[\w-]*)")    
+print(len(playlist.video_urls))    
+
+
+
+
+'''
+#print(dir(playlist))
+
+for url in playlist.video_urls:
+    print(url)
+'''
+
+
+
+
+index=1
+for video in playlist.videos:
+    #print('downloading : {} with url : {}'.format(video.title, video.watch_url))
+    print('\ndownloading {} : {}'.format(index,video.title))
+    s=''
+    previousprogress = 0
+
+
+
+
+    '''
+    yt_obj = YouTube(video.watch_url, on_progress_callback=progress)
+    yt_obj.streams.\
+        filter(type='video', progressive=True, file_extension='mp4').\
+        order_by('resolution').\
+        desc().\
+        first().\
+        download(DOWNLOAD_DIR)
+    '''
+
+
+
+    
+    yt_obj = YouTube(video.watch_url, on_progress_callback=progress)
+    
+    filters = yt_obj.streams.filter(progressive=True, file_extension='mp4')
+    filters.get_highest_resolution().download(DOWNLOAD_DIR)
+    
+    index+=1
+    
+print("\nsuccessfully completed")
