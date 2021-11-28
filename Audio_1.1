@@ -1,0 +1,69 @@
+from pytube import Playlist
+from pytube import YouTube
+import os
+import re
+#import subprocess
+
+
+
+def progress(stream, chunk, bytes_remaining):
+    global s
+    size=stream.filesize
+    n=int((size - bytes_remaining) / size * 100)
+    s1=str(n).zfill(2)
+    tensDigit=s1[0]
+    
+    if n==100:
+        print('100%')
+    elif tensDigit not in s:
+        print(tensDigit+'0%',end=" ")
+        s=s+tensDigit
+
+        
+playlistLinks=[
+    
+'https://www.youtube.com/playlist?list=PLDHlSUfs1hIKMWd_vGDyVLmWMK87TRees',
+'https://www.youtube.com/playlist?list=PLDHlSUfs1hIJQxXANRTZBvmHDa5qwuCpG',
+'https://www.youtube.com/playlist?list=PLDHlSUfs1hIL9TXWNZzdDCF6KNQR6BuVi',
+'https://www.youtube.com/playlist?list=PLDHlSUfs1hIJAN0y8Gz05m1Nb2V2Pm-9H',
+'https://www.youtube.com/playlist?list=PLDHlSUfs1hIL3EW98EHffF-N60gCJBDuK'
+
+]
+
+for playlink in playlistLinks:
+
+    playlist = Playlist(playlink)   
+    DOWNLOAD_DIR = "C:/Users/o3gvk/Videos/MyMusic/"+playlist.title+"/"
+    print(playlist.title,' - ',len(playlist.video_urls),'songs')
+    #print(playlist)
+
+    index=1
+    for video in playlist.videos:
+        print('\ndownloading {} : {}'.format(index,video.title))
+        s=''
+
+        try:
+            video1 = YouTube(video.watch_url, on_progress_callback=progress)
+            v=video1.streams.filter(only_audio=True)
+            audio = v.last().download(DOWNLOAD_DIR)
+            new_file = audio[:-4] + 'mp3'
+
+            #subprocess.run(["ffmpeg", "-y", "-i", audio, new_file])
+
+            #ml=re.findall('abr="(.+)kbps"',str(v))
+            print('Available bits - ',re.findall('([0-9]+)kbps',str(v)))
+            #f=re.findall('([0-9]+)kbps',str(v.first()))
+            l=re.findall('([0-9]+)kbps',str(v.last()))
+            #print(max(map(int,re.findall('([0-9]+)kbps',str(v)))))
+            print('Using bit rate - ',l[0],'kbps')
+            #print(v)
+            
+            os.rename(audio, new_file)
+
+        except Exception as e:
+            print(str(e))
+
+        index+=1
+        
+    print("\nsuccessfully completed\n")
+print('Done\n')
